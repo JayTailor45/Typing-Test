@@ -1,0 +1,46 @@
+.container {
+  margin: 20vh auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .paragraph {
+    width: 70vw;
+
+    span {
+      line-height: 2em;
+    }
+
+    .current-char {
+      animation-name: blink;
+      animation-duration: 1s;
+      animation-delay: 2s;
+      animation-iteration-count: infinite;
+      animation-timing-function: linear;
+
+      border-radius: 10px;
+
+      background-color: rgb(52, 164, 255);
+      color: rgb(255, 255, 255);
+
+      margin: 2px;
+      padding: 4px;
+
+      @keyframes blink {
+        0% {
+          background-color: aliceblue;
+          color: grey;
+        }
+        100% {
+          background-color:grey;
+          color: aliceblue;
+        }
+      }
+    }
+
+    .typed {
+      color: lightslategray;
+    }
+
+  }
+}
