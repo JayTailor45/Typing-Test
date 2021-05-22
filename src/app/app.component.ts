@@ -1,6 +1,6 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 import { BehaviorSubject, fromEvent, interval, Subject } from 'rxjs';
-import { share, takeUntil, tap } from 'rxjs/operators';
+import { first, share, takeUntil, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -13,8 +13,7 @@ export class AppComponent implements AfterViewInit {
 
   text: string = `It's easy to make a buck. It's a lot tougher to make a difference.`;
 
-  private keyDown$ = fromEvent<KeyboardEvent>(document, 'keydown')
-    .pipe(share());
+  private keyDown$ = fromEvent<KeyboardEvent>(document, 'keydown');
 
   private timer$ = interval(1000);
   private secoundPassed$: BehaviorSubject<number> = new BehaviorSubject(0);
@@ -51,6 +50,12 @@ export class AppComponent implements AfterViewInit {
     this.renderer.addClass(currentSpanRef, 'current-char');
 
     this.keyDown$.subscribe(({key}) => {
+      if(cursorIndex == 0) {
+        this.timer$.pipe(
+          takeUntil(this.gameOver$),
+          tap(tick => this.secoundPassed$.next(tick)),
+        ).subscribe(_=> null, err => null);
+      }
       if(cursorIndex >= chars.length -1) {
         this.gameOver$.error(null);
         this.gameOver$.complete();
@@ -74,11 +79,6 @@ export class AppComponent implements AfterViewInit {
       }
     });
 
-    this.timer$.pipe(
-      takeUntil(this.gameOver$),
-      tap(tick => this.secoundPassed$.next(tick)),
-    ).subscribe(val => {
-    }, err => { });
   }
 
   ngOnDestroy() { }
