@@ -11,7 +11,7 @@ export class AppComponent implements AfterViewInit {
 
   @ViewChild('paragraph', {static: false}) paragraph!: ElementRef;
 
-  text: string = `It's easy to make a buck. It's a lot tougher to make a difference.`;
+  text: string = `The Mahabharata is a story about a great battle between the Kauravas and the Pandavas. The battle was fought in Kurukshetra near Delhi. Many kings and princes took part in the battle. The Pandavas defeated the Kauravas. The Bhagvad Gita is a holy book of the Hindus. It is a part of the Mahabharata. Then, Lord Rama, with the help of It is a book of collection of teachings of Lord Krishna to Arjuna in the battlefield. It is the longest epic in the world.`;
 
   private keyDown$ = fromEvent<KeyboardEvent>(document, 'keydown');
 
