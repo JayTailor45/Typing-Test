@@ -1,6 +1,6 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, Renderer2 } from '@angular/core';
-import { fromEvent } from 'rxjs';
-import { share } from 'rxjs/operators';
+import { BehaviorSubject, fromEvent, interval, Subject } from 'rxjs';
+import { share, takeUntil, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -15,6 +15,20 @@ export class AppComponent implements AfterViewInit {
 
   private keyDown$ = fromEvent<KeyboardEvent>(document, 'keydown')
     .pipe(share());
+
+  private timer$ = interval(1000);
+  private secoundPassed$: BehaviorSubject<number> = new BehaviorSubject(0);
+  private gameOver$: Subject<any> = new Subject();
+
+  status: {
+    wpm: number | null,
+    cpm: number | null,
+    time: number | null,
+  } = {
+    wpm: null,
+    cpm: null,
+    time: null,
+  };
 
   constructor(private renderer: Renderer2) {}
 
@@ -32,23 +46,40 @@ export class AppComponent implements AfterViewInit {
     let cursorIndex = 0;
     let currentSpanRef = spanElementRefs[cursorIndex];
     let currentChar = chars[cursorIndex];
+    let totalWords = this.text.split(' ').length;
 
     this.renderer.addClass(currentSpanRef, 'current-char');
 
     this.keyDown$.subscribe(({key}) => {
+      if(cursorIndex >= chars.length -1) {
+        this.gameOver$.error(null);
+        this.gameOver$.complete();
+
+        // Show result
+        const totalTime = this.secoundPassed$.getValue();
+        this.status.time = totalTime;
+        this.status.wpm = (totalWords / totalTime) * 60;
+        this.status.cpm = (chars.length / totalTime) * 60;
+        return;
+      }
+
       if(key === currentChar) {
         this.renderer.removeClass(currentSpanRef, 'current-char');
         this.renderer.addClass(currentSpanRef, 'typed');
 
         // Increnemt for next character
-        currentSpanRef = this.renderer.nextSibling(currentSpanRef); // TODO: Handle case of last element
+        currentSpanRef = this.renderer.nextSibling(currentSpanRef);
         currentChar = chars[++cursorIndex];
         this.renderer.addClass(currentSpanRef, 'current-char');
       }
-      console.log(key);
     });
+
+    this.timer$.pipe(
+      takeUntil(this.gameOver$),
+      tap(tick => this.secoundPassed$.next(tick)),
+    ).subscribe(val => {
+    }, err => { });
   }
 
-  getParagraphElement() {
-  }
+  ngOnDestroy() { }
 }

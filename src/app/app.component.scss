@@ -6,6 +6,7 @@
 
   .paragraph {
     width: 70vw;
+    font-size: 36px;
 
     span {
       line-height: 2em;
@@ -43,4 +44,10 @@
     }
 
   }
+}
+.result {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }

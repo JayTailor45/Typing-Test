@@ -1,4 +1,12 @@
 <div class="container">
   <div class="paragraph" #paragraph></div>
+  <div>
+  </div>
+</div>
+<div *ngIf="status && status.time" class="result">
+  <h2>Status</h2>
+  <p>Words Per Minute : {{(status.wpm || 0).toFixed()}}</p>
+  <p>Characters Per Minute : {{(status.cpm || 0).toFixed()}}</p>
+  <p>Completion time : {{status.time}} secounds</p>
 </div>
 <router-outlet></router-outlet>
