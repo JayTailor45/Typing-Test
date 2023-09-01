@@ -1,27 +1,18 @@
-# TypingTest
+# TypingTest [Angular version 12.0.1]
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.0.1.
+A TypingTest is a web-based application designed to mimic the functionality of typing test platforms like Typing.com, monkeytype, or 10FastFingers. Its primary purpose is to assess and improve a user's typing skills, accuracy, and speed.
 
-## Development server
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+To Start typing you need to Type the first word of the paragraph.
+<p>
+<img src="https://github.com/JayTailor45/Typing-Test/assets/75196566/3ddec6dd-cebc-4fe7-b106-c96b2c070d43" width="500px">
+</p>
 
-## Code scaffolding
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+The Final result looks like this.
+<p>
+<img src="https://github.com/JayTailor45/Typing-Test/assets/75196566/88701039-9612-4c91-ad7b-8d3ba3141442" width="500px">
+</p>
 
-## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
