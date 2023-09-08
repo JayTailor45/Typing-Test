@@ -1,12 +1,13 @@
 <div class="container">
-  <div class="paragraph" #paragraph></div>
-  <div>
+  <div class="paragraph" #paragraph  *ngIf="!status?.time"></div>
+  <div *ngIf="status && status.time" class="result">
+    <h2>Status</h2>
+    <p>Words Per Minute : {{(status.wpm || 0).toFixed()}}</p>
+    <p>Characters Per Minute : {{(status.cpm || 0).toFixed()}}</p>
+    <p>Completion time : {{status.time}} secounds</p>
   </div>
-</div>
-<div *ngIf="status && status.time" class="result">
-  <h2>Status</h2>
-  <p>Words Per Minute : {{(status.wpm || 0).toFixed()}}</p>
-  <p>Characters Per Minute : {{(status.cpm || 0).toFixed()}}</p>
-  <p>Completion time : {{status.time}} secounds</p>
+  <div class="reset-container">
+    <a class="reset-btn" (click)="resetParagraph()">Restart</a>
+  </div>
 </div>
 <router-outlet></router-outlet>

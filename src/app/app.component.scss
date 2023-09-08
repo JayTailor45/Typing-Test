@@ -1,6 +1,6 @@
 .container {
   margin: 20vh auto;
-  display: flex;
+  display: grid;
   align-items: center;
   justify-content: center;
 
@@ -40,14 +40,38 @@
     }
 
     .typed {
-      color: lightslategray;
+      color: rgb(1, 102, 16);
+      font-weight: bold;
+    }
+  }
+  .reset-container{
+    display: flex;
+    justify-content: center;
+
+    .reset-btn{
+      width: 200px;
+      height: 50px;
+      background-color: #2f99bd;
+      box-shadow: none;
+      border-radius: 10px;
+      border-color: #005a77;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-weight: bolder;
     }
 
+    .reset-btn:hover{
+      cursor: pointer;
+    }
   }
+  
 }
 .result {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  margin: 20px;
 }

@@ -1,6 +1,7 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 import { BehaviorSubject, fromEvent, interval, Subject } from 'rxjs';
-import { first, share, takeUntil, tap } from 'rxjs/operators';
+import { takeUntil, tap } from 'rxjs/operators';
+import { DataService } from './data.service';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +19,7 @@ export class AppComponent implements AfterViewInit {
   private timer$ = interval(1000);
   private secoundPassed$: BehaviorSubject<number> = new BehaviorSubject(0);
   private gameOver$: Subject<any> = new Subject();
+  private _subscriptions : any[] = [];
 
   status: {
     wpm: number | null,
@@ -29,10 +31,36 @@ export class AppComponent implements AfterViewInit {
     time: null,
   };
 
-  constructor(private renderer: Renderer2) {}
+  constructor(
+    private renderer: Renderer2,
+    private dataService: DataService
+  ) {}
 
-  ngAfterViewInit() {
-    const chars = this.text.split('').map(char => {
+  ngOnInit(): void {}
+
+  loadData(){
+    this.dataService.getRandomParagraphFormLocal().subscribe((data) => {
+      if(data?.paragraphs.length){
+        const randomNumber = Math.floor(Math.random() * data.paragraphs.length ) + 1;
+        this.text = data.paragraphs[randomNumber];
+        // this.clearNodes();
+        this.setParagraph();
+      }
+    },(error)=>{
+        console.log("error",error);
+    });
+  }
+
+  // clearNodes(){
+  //   const myEl = this.paragraph.nativeElement;
+  //   while(myEl.firstChild) {
+  //     this.renderer.removeChild(myEl, myEl.lastChild);
+  //   }
+  // }
+
+
+  setParagraph(){
+    const chars =  this.text.split('').map(char => {
       const span = this.renderer.createElement('span');
       const text = this.renderer.createText(char);
       this.renderer.appendChild(span, text);
@@ -49,37 +77,51 @@ export class AppComponent implements AfterViewInit {
 
     this.renderer.addClass(currentSpanRef, 'current-char');
 
-    this.keyDown$.subscribe(({key}) => {
-      if(cursorIndex == 0) {
-        this.timer$.pipe(
-          takeUntil(this.gameOver$),
-          tap(tick => this.secoundPassed$.next(tick)),
-        ).subscribe(_=> null, err => null);
-      }
-      if(cursorIndex >= chars.length -1) {
-        this.gameOver$.error(null);
-        this.gameOver$.complete();
-
-        // Show result
-        const totalTime = this.secoundPassed$.getValue();
-        this.status.time = totalTime;
-        this.status.wpm = (totalWords / totalTime) * 60;
-        this.status.cpm = (chars.length / totalTime) * 60;
-        return;
-      }
-
-      if(key === currentChar) {
-        this.renderer.removeClass(currentSpanRef, 'current-char');
-        this.renderer.addClass(currentSpanRef, 'typed');
-
-        // Increnemt for next character
-        currentSpanRef = this.renderer.nextSibling(currentSpanRef);
-        currentChar = chars[++cursorIndex];
-        this.renderer.addClass(currentSpanRef, 'current-char');
-      }
-    });
-
+    this._subscriptions.push(
+      this.keyDown$.subscribe(({key}) => {
+        if(cursorIndex == 0) {
+          this._subscriptions.push(
+            this.timer$.pipe(
+              takeUntil(this.gameOver$),
+              tap(tick => this.secoundPassed$.next(tick)),
+            ).subscribe(_=> null, err => null)
+          );
+        }
+        if(cursorIndex >= chars.length -1) {
+          this.gameOver$.error(null);
+          this.gameOver$.complete();
+  
+          // Show result
+          const totalTime = this.secoundPassed$.getValue();
+          this.status.time = totalTime;
+          this.status.wpm = (totalWords / totalTime) * 60;
+          this.status.cpm = (chars.length / totalTime) * 60;
+          return;
+        }
+  
+        if(key === currentChar) {
+          this.renderer.removeClass(currentSpanRef, 'current-char');
+          this.renderer.addClass(currentSpanRef, 'typed');
+  
+          // Increnemt for next character
+          currentSpanRef = this.renderer.nextSibling(currentSpanRef);
+          currentChar = chars[++cursorIndex];
+          this.renderer.addClass(currentSpanRef, 'current-char');
+        }
+      })
+    );
+    
   }
 
-  ngOnDestroy() { }
+  resetParagraph(){
+    location.reload();
+  }
+
+  ngAfterViewInit() {
+    this.loadData();
+  }
+
+  ngOnDestroy() {
+    this._subscriptions.forEach(sub => sub.unsubscribe()) ;
+  }
 }
