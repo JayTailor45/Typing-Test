@@ -15,12 +15,11 @@ export class AppComponent implements AfterViewInit {
   text: string = `The Mahabharata is a story about a great battle between the Kauravas and the Pandavas. The battle was fought in Kurukshetra near Delhi. Many kings and princes took part in the battle. The Pandavas defeated the Kauravas. The Bhagvad Gita is a holy book of the Hindus. It is a part of the Mahabharata. Then, Lord Rama, with the help of It is a book of collection of teachings of Lord Krishna to Arjuna in the battlefield. It is the longest epic in the world.`;
 
   private keyDown$ = fromEvent<KeyboardEvent>(document, 'keydown');
-
   private timer$ = interval(1000);
   private secoundPassed$: BehaviorSubject<number> = new BehaviorSubject(0);
   private gameOver$: Subject<any> = new Subject();
   private _subscriptions : any[] = [];
-
+  private cursorIndex = 0;
   status: {
     wpm: number | null,
     cpm: number | null,
@@ -38,12 +37,12 @@ export class AppComponent implements AfterViewInit {
 
   ngOnInit(): void {}
 
+  // Load new Paragharph 
   loadData(){
     this.dataService.getRandomParagraphFormLocal().subscribe((data) => {
       if(data?.paragraphs.length){
-        const randomNumber = Math.floor(Math.random() * data.paragraphs.length ) + 1;
-        this.text = data.paragraphs[randomNumber];
-        // this.clearNodes();
+        this.text = this.getRandomParagraphs(data);
+        this.clearNodes();
         this.setParagraph();
       }
     },(error)=>{
@@ -51,14 +50,32 @@ export class AppComponent implements AfterViewInit {
     });
   }
 
-  // clearNodes(){
-  //   const myEl = this.paragraph.nativeElement;
-  //   while(myEl.firstChild) {
-  //     this.renderer.removeChild(myEl, myEl.lastChild);
-  //   }
-  // }
+  // Get random  Paragraph
+  getRandomParagraphs(data:any){
+    const randomNumber =  Math.floor(Math.random() * data.paragraphs.length ) + 1;
+    if(!data.paragraphs[randomNumber]) 
+      this.getRandomParagraphs(data);
+    return data.paragraphs[randomNumber];
+  }
 
+  // Remove paragraph and clear typing test results
+  clearNodes(){
+    const myEl = this.paragraph.nativeElement;
+    while(myEl.firstChild) 
+      this.renderer.removeChild(myEl, myEl.lastChild);
+    this.secoundPassed$ = new BehaviorSubject(0);
+    this.gameOver$ = new Subject();
+    this.timer$ = interval(1000);
+    this.keyDown$ = fromEvent<KeyboardEvent>(document, 'keydown');
+    this.cursorIndex = 0;
+    this.status = {
+      wpm: null,
+      cpm: null,
+      time: null,
+    };
+  }
 
+  // Set the paragrph
   setParagraph(){
     const chars =  this.text.split('').map(char => {
       const span = this.renderer.createElement('span');
@@ -70,16 +87,15 @@ export class AppComponent implements AfterViewInit {
 
     const spanElementRefs: HTMLElement[] = this.paragraph.nativeElement.children;
 
-    let cursorIndex = 0;
-    let currentSpanRef = spanElementRefs[cursorIndex];
-    let currentChar = chars[cursorIndex];
+    let currentSpanRef = spanElementRefs[this.cursorIndex];
+    let currentChar = chars[this.cursorIndex];
     let totalWords = this.text.split(' ').length;
 
     this.renderer.addClass(currentSpanRef, 'current-char');
 
     this._subscriptions.push(
       this.keyDown$.subscribe(({key}) => {
-        if(cursorIndex == 0) {
+        if(this.cursorIndex == 0) {
           this._subscriptions.push(
             this.timer$.pipe(
               takeUntil(this.gameOver$),
@@ -87,7 +103,8 @@ export class AppComponent implements AfterViewInit {
             ).subscribe(_=> null, err => null)
           );
         }
-        if(cursorIndex >= chars.length -1) {
+
+        if(this.cursorIndex >= chars.length -1) {
           this.gameOver$.error(null);
           this.gameOver$.complete();
   
@@ -100,21 +117,15 @@ export class AppComponent implements AfterViewInit {
         }
   
         if(key === currentChar) {
-          this.renderer.removeClass(currentSpanRef, 'current-char');
-          this.renderer.addClass(currentSpanRef, 'typed');
-  
+          currentSpanRef ? currentSpanRef.className = 'typed' : null;
           // Increnemt for next character
-          currentSpanRef = this.renderer.nextSibling(currentSpanRef);
-          currentChar = chars[++cursorIndex];
-          this.renderer.addClass(currentSpanRef, 'current-char');
+          currentSpanRef ? currentSpanRef = this.renderer.nextSibling(currentSpanRef) : null;
+          currentChar = chars[++this.cursorIndex];
+          currentSpanRef ? currentSpanRef.className = 'current-char' : null;
         }
       })
     );
     
-  }
-
-  resetParagraph(){
-    location.reload();
   }
 
   ngAfterViewInit() {

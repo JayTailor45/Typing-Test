@@ -1,5 +1,5 @@
 <div class="container">
-  <div class="paragraph" #paragraph  *ngIf="!status?.time"></div>
+  <div class="paragraph" #paragraph  [style.visibility]="(status && status.time) ? 'hidden' : 'visible' "></div>
   <div *ngIf="status && status.time" class="result">
     <h2>Status</h2>
     <p>Words Per Minute : {{(status.wpm || 0).toFixed()}}</p>
@@ -7,7 +7,7 @@
     <p>Completion time : {{status.time}} secounds</p>
   </div>
   <div class="reset-container">
-    <a class="reset-btn" (click)="resetParagraph()">Restart</a>
+    <a class="reset-btn" (click)="loadData()">Restart</a>
   </div>
 </div>
 <router-outlet></router-outlet>
